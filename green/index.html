@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Jenkins Day 17 - Green Environment</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                linear-gradient(
+                    135deg,
+                    #022c22,
+                    #064e3b,
+                    #047857,
+                    #065f46
+                );
+
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           ANIMATED BACKGROUND
+        ========================================= */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            filter: blur(3px);
+            animation: moveBubble 10s infinite ease-in-out;
+        }
+
+        .bubble1 {
+            width: 260px;
+            height: 260px;
+            background: #22c55e;
+            top: 5%;
+            left: 5%;
+        }
+
+        .bubble2 {
+            width: 380px;
+            height: 380px;
+            background: #10b981;
+            right: -100px;
+            top: 25%;
+            animation-delay: 2s;
+        }
+
+        .bubble3 {
+            width: 220px;
+            height: 220px;
+            background: #34d399;
+            left: 35%;
+            bottom: 0;
+            animation-delay: 4s;
+        }
+
+        .bubble4 {
+            width: 160px;
+            height: 160px;
+            background: #86efac;
+            right: 25%;
+            top: 10%;
+            animation-delay: 6s;
+        }
+
+        @keyframes moveBubble {
+
+            0% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(30px, -40px);
+            }
+
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        header {
+            width: 92%;
+            max-width: 1250px;
+            margin: 30px auto;
+            padding: 28px;
+
+            text-align: center;
+
+            background:
+                rgba(255, 255, 255, 0.08);
+
+            border:
+                1px solid rgba(167, 243, 208, 0.25);
+
+            border-radius: 24px;
+
+            backdrop-filter: blur(15px);
+
+            box-shadow:
+                0 15px 45px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 44px;
+            letter-spacing: 2px;
+            color: #6ee7b7;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #d1fae5;
+            font-size: 18px;
+        }
+
+        /* =========================================
+           MAIN
+        ========================================= */
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: auto;
+        }
+
+        /* =========================================
+           HERO SECTION
+        ========================================= */
+
+        .hero {
+            margin-top: 35px;
+            padding: 55px 30px;
+
+            text-align: center;
+
+            border-radius: 30px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(16, 185, 129, 0.20),
+                    rgba(5, 150, 105, 0.12)
+                );
+
+            border:
+                1px solid rgba(110, 231, 183, 0.3);
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.35);
+
+            backdrop-filter: blur(12px);
+        }
+
+        .green-logo {
+            width: 110px;
+            height: 110px;
+
+            margin: auto;
+            margin-bottom: 25px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 65px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(34, 197, 94, 0.15);
+
+            border:
+                2px solid rgba(134, 239, 172, 0.4);
+
+            box-shadow:
+                0 0 35px rgba(34, 197, 94, 0.35);
+
+            animation:
+                greenPulse 2s infinite;
+        }
+
+        @keyframes greenPulse {
+
+            0% {
+                transform: scale(1);
+                box-shadow:
+                    0 0 20px rgba(34, 197, 94, 0.3);
+            }
+
+            50% {
+                transform: scale(1.08);
+                box-shadow:
+                    0 0 45px rgba(34, 197, 94, 0.55);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow:
+                    0 0 20px rgba(34, 197, 94, 0.3);
+            }
+        }
+
+        .hero h2 {
+            font-size: 38px;
+            margin-bottom: 15px;
+        }
+
+        .hero h2 span {
+            color: #4ade80;
+        }
+
+        .hero p {
+            max-width: 850px;
+            margin: auto;
+
+            color: #d1fae5;
+
+            font-size: 18px;
+
+            line-height: 1.8;
+        }
+
+        /* =========================================
+           STATUS BADGE
+        ========================================= */
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-top: 25px;
+
+            padding: 13px 28px;
+
+            border-radius: 50px;
+
+            background:
+                rgba(34, 197, 94, 0.14);
+
+            border:
+                1px solid rgba(74, 222, 128, 0.45);
+
+            color: #86efac;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 13px;
+            height: 13px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 15px #22c55e;
+
+            animation: statusBlink 1.5s infinite;
+        }
+
+        @keyframes statusBlink {
+
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.25;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* =========================================
+           INFORMATION CARDS
+        ========================================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(230px, 1fr));
+
+            gap: 22px;
+
+            margin-top: 35px;
+        }
+
+        .card {
+            padding: 28px;
+
+            border-radius: 22px;
+
+            background:
+                rgba(255, 255, 255, 0.07);
+
+            border:
+                1px solid rgba(167, 243, 208, 0.16);
+
+            backdrop-filter: blur(12px);
+
+            transition:
+                all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+
+            border-color:
+                rgba(110, 231, 183, 0.45);
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .card-icon {
+            font-size: 38px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            color: #6ee7b7;
+            margin-bottom: 12px;
+            font-size: 21px;
+        }
+
+        .card p {
+            color: #d1d5db;
+            line-height: 1.7;
+        }
+
+        /* =========================================
+           SECTION TITLE
+        ========================================= */
+
+        .section {
+            margin-top: 50px;
+        }
+
+        .section-title {
+            font-size: 30px;
+            color: #a7f3d0;
+            margin-bottom: 22px;
+        }
+
+        /* =========================================
+           PIPELINE
+        ========================================= */
+
+        .pipeline {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+
+            gap: 18px;
+        }
+
+        .pipeline-step {
+            position: relative;
+
+            padding: 25px;
+
+            text-align: center;
+
+            border-radius: 20px;
+
+            background:
+                rgba(2, 44, 34, 0.65);
+
+            border:
+                1px solid rgba(52, 211, 153, 0.25);
+
+            transition: 0.3s;
+        }
+
+        .pipeline-step:hover {
+            transform: translateY(-7px);
+
+            background:
+                rgba(6, 78, 59, 0.8);
+        }
+
+        .number {
+            width: 48px;
+            height: 48px;
+
+            margin: auto auto 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #059669,
+                    #10b981
+                );
+
+            color: white;
+
+            font-weight: bold;
+
+            box-shadow:
+                0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .pipeline-step h4 {
+            color: #ecfdf5;
+            margin-bottom: 8px;
+        }
+
+        .pipeline-step p {
+            color: #9ca3af;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* =========================================
+           DEPLOYMENT DETAILS
+        ========================================= */
+
+        .details {
+            padding: 30px;
+
+            border-radius: 24px;
+
+            background:
+                rgba(2, 44, 34, 0.65);
+
+            border:
+                1px solid rgba(52, 211, 153, 0.25);
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 5px;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #9ca3af;
+        }
+
+        .value {
+            color: #ecfdf5;
+            font-weight: bold;
+        }
+
+        .active {
+            color: #4ade80;
+        }
+
+        .new-version {
+            color: #86efac;
+        }
+
+        /* =========================================
+           PROGRESS SECTION
+        ========================================= */
+
+        .health-box {
+            margin-top: 25px;
+
+            padding: 28px;
+
+            border-radius: 22px;
+
+            background:
+                rgba(255, 255, 255, 0.06);
+
+            border:
+                1px solid rgba(110, 231, 183, 0.15);
+        }
+
+        .health-header {
+            display: flex;
+            justify-content: space-between;
+
+            margin-bottom: 13px;
+
+            color: #d1fae5;
+        }
+
+        .progress {
+            height: 16px;
+
+            width: 100%;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            background:
+                #022c22;
+        }
+
+        .progress-bar {
+            width: 100%;
+
+            height: 100%;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #047857,
+                    #10b981,
+                    #6ee7b7
+                );
+
+            animation:
+                progressAnimation 3s ease;
+        }
+
+        @keyframes progressAnimation {
+
+            from {
+                width: 0%;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        /* =========================================
+           RELEASE INFORMATION
+        ========================================= */
+
+        .release-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(260px, 1fr));
+
+            gap: 20px;
+        }
+
+        .release-card {
+            padding: 28px;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(16, 185, 129, 0.12),
+                    rgba(5, 150, 105, 0.08)
+                );
+
+            border:
+                1px solid rgba(110, 231, 183, 0.18);
+        }
+
+        .release-card h3 {
+            color: #6ee7b7;
+            margin-bottom: 12px;
+        }
+
+        .release-card p {
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        /* =========================================
+           FEATURE SECTION
+        ========================================= */
+
+        .features {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+
+            gap: 20px;
+        }
+
+        .feature {
+            padding: 26px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(255, 255, 255, 0.06);
+
+            border:
+                1px solid rgba(110, 231, 183, 0.15);
+
+            transition: 0.3s;
+        }
+
+        .feature:hover {
+            transform: scale(1.02);
+
+            border-color:
+                rgba(110, 231, 183, 0.4);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .feature h3 {
+            color: #86efac;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        /* =========================================
+           ACHIEVEMENT
+        ========================================= */
+
+        .achievement {
+            margin-top: 50px;
+
+            padding: 40px;
+
+            border-radius: 25px;
+
+            text-align: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(16, 185, 129, 0.18),
+                    rgba(5, 150, 105, 0.08)
+                );
+
+            border:
+                1px solid rgba(110, 231, 183, 0.25);
+        }
+
+        .achievement h2 {
+            color: #6ee7b7;
+            margin-bottom: 15px;
+        }
+
+        .achievement p {
+            max-width: 900px;
+
+            margin: auto;
+
+            color: #d1fae5;
+
+            line-height: 1.9;
+        }
+
+        .tags {
+            margin-top: 25px;
+        }
+
+        .tag {
+            display: inline-block;
+
+            margin: 6px;
+
+            padding: 9px 18px;
+
+            border-radius: 30px;
+
+            background:
+                rgba(16, 185, 129, 0.12);
+
+            border:
+                1px solid rgba(110, 231, 183, 0.25);
+
+            color: #86efac;
+        }
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+            margin-top: 60px;
+
+            padding: 35px;
+
+            text-align: center;
+
+            background:
+                rgba(2, 44, 34, 0.85);
+
+            border-top:
+                1px solid rgba(110, 231, 183, 0.15);
+        }
+
+        footer h3 {
+            color: #6ee7b7;
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        footer p {
+            color: #9ca3af;
+            margin: 7px;
+        }
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 650px) {
+
+            header h1 {
+                font-size: 30px;
+            }
+
+            header p {
+                font-size: 15px;
+            }
+
+            .hero {
+                padding: 40px 20px;
+            }
+
+            .hero h2 {
+                font-size: 27px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .green-logo {
+                width: 90px;
+                height: 90px;
+                font-size: 50px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 7px;
+            }
+
+            .section-title {
+                font-size: 25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================
+         BACKGROUND
+    ========================================== -->
+
+    <div class="background">
+
+        <div class="bubble bubble1"></div>
+
+        <div class="bubble bubble2"></div>
+
+        <div class="bubble bubble3"></div>
+
+        <div class="bubble bubble4"></div>
+
+    </div>
+
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header>
+
+        <h1>
+            🟢 GREEN ENVIRONMENT
+        </h1>
+
+        <p>
+            Jenkins Day 17 • New Production Release
+        </p>
+
+    </header>
+
+
+    <main class="container">
+
+
+        <!-- =====================================
+             HERO
+        ====================================== -->
+
+        <section class="hero">
+
+            <div class="green-logo">
+                🟢
+            </div>
+
+            <h2>
+                Welcome to the
+                <span>Green Environment</span>
+            </h2>
+
+            <p>
+                The Green Environment represents the new application
+                version prepared for production using an automated
+                Blue-Green Deployment strategy with Jenkins CI/CD.
+                This release contains the latest application changes
+                and is ready for production validation.
+            </p>
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                NEW VERSION DEPLOYED
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             CARDS
+        ====================================== -->
+
+        <section class="cards">
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    🟢
+                </div>
+
+                <h3>
+                    Green Environment
+                </h3>
+
+                <p>
+                    Green is the newly deployed environment
+                    containing the latest application version.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    🚀
+                </div>
+
+                <h3>
+                    New Release
+                </h3>
+
+                <p>
+                    Version GREEN-2.0 represents the latest
+                    application release deployed through Jenkins.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    🧪
+                </div>
+
+                <h3>
+                    Testing Ready
+                </h3>
+
+                <p>
+                    The new version can be tested and validated
+                    before switching production traffic.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    ⚡
+                </div>
+
+                <h3>
+                    Automated CI/CD
+                </h3>
+
+                <p>
+                    Jenkins automates the build and deployment
+                    workflow for the Green environment.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =====================================
+             PIPELINE
+        ====================================== -->
+
+        <section class="section">
+
+            <h2 class="section-title">
+                🔄 Green Deployment Pipeline
+            </h2>
+
+
+            <div class="pipeline">
+
+
+                <div class="pipeline-step">
+
+                    <div class="number">
+                        01
+                    </div>
+
+                    <h4>
+                        GitHub Push
+                    </h4>
+
+                    <p>
+                        Latest source code is pushed
+                        to the GitHub repository.
+                    </p>
+
+                </div>
+
+
+                <div class="pipeline-step">
+
+                    <div class="number">
+                        02
+                    </div>
+
+                    <h4>
+                        Jenkins Trigger
+                    </h4>
+
+                    <p>
+                        Jenkins detects the new
+                        application change.
+                    </p>
+
+                </div>
+
+
+                <div class="pipeline-step">
+
+                    <div class="number">
+                        03
+                    </div>
+
+                    <h4>
+                        Build
+                    </h4>
+
+                    <p>
+                        Jenkins builds the latest
+                        application version.
+                    </p>
+
+                </div>
+
+
+                <div class="pipeline-step">
+
+                    <div class="number">
+                        04
+                    </div>
+
+                    <h4>
+                        Deployment
+                    </h4>
+
+                    <p>
+                        New version is deployed
+                        into the Green environment.
+                    </p>
+
+                </div>
+
+
+                <div class="pipeline-step">
+
+                    <div class="number">
+                        05
+                    </div>
+
+                    <h4>
+                        Validation
+                    </h4>
+
+                    <p>
+                        Green environment is tested
+                        before production switching.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             DEPLOYMENT DETAILS
+        ====================================== -->
+
+        <section class="section">
+
+            <h2 class="section-title">
+                📋 Deployment Details
+            </h2>
+
+
+            <div class="details">
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Application Name
+                    </span>
+
+                    <span class="value">
+                        Jenkins Blue-Green Application
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Environment
+                    </span>
+
+                    <span class="value">
+                        🟢 GREEN
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Application Version
+                    </span>
+
+                    <span class="value new-version">
+                        GREEN-2.0
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Deployment Type
+                    </span>
+
+                    <span class="value">
+                        Blue-Green Deployment
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        CI/CD Platform
+                    </span>
+
+                    <span class="value">
+                        Jenkins
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Source Repository
+                    </span>
+
+                    <span class="value">
+                        GitHub
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Release Status
+                    </span>
+
+                    <span class="value active">
+                        ✔ NEW VERSION
+                    </span>
+
+                </div>
+
+
+                <div class="detail-row">
+
+                    <span class="label">
+                        Developer
+                    </span>
+
+                    <span class="value">
+                        Subalakshmi K
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- HEALTH -->
+
+            <div class="health-box">
+
+                <div class="health-header">
+
+                    <span>
+                        🟢 Environment Health
+                    </span>
+
+                    <strong>
+                        100%
+                    </strong>
+
+                </div>
+
+                <div class="progress">
+
+                    <div class="progress-bar"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             RELEASE INFORMATION
+        ====================================== -->
+
+        <section class="section">
+
+            <h2 class="section-title">
+                📦 Release Information
+            </h2>
+
+
+            <div class="release-grid">
+
+
+                <div class="release-card">
+
+                    <h3>
+                        GREEN-2.0
+                    </h3>
+
+                    <p>
+                        This release contains the newest
+                        application version and represents
+                        the next stage of the deployment process.
+                    </p>
+
+                </div>
+
+
+                <div class="release-card">
+
+                    <h3>
+                        Production Ready
+                    </h3>
+
+                    <p>
+                        The Green environment has been created
+                        separately so the new version can be
+                        validated safely.
+                    </p>
+
+                </div>
+
+
+                <div class="release-card">
+
+                    <h3>
+                        Automated Deployment
+                    </h3>
+
+                    <p>
+                        Jenkins handles the deployment process
+                        automatically after detecting changes
+                        from the GitHub repository.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             FEATURES
+        ====================================== -->
+
+        <section class="section">
+
+            <h2 class="section-title">
+                ✨ Green Environment Features
+            </h2>
+
+
+            <div class="features">
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🔄
+                    </div>
+
+                    <h3>
+                        Easy Environment Switching
+                    </h3>
+
+                    <p>
+                        Blue and Green environments can be
+                        switched depending on which version
+                        should serve production traffic.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🛡️
+                    </div>
+
+                    <h3>
+                        Safer Deployment
+                    </h3>
+
+                    <p>
+                        The new release can be validated
+                        independently without immediately
+                        affecting the existing environment.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        ⚡
+                    </div>
+
+                    <h3>
+                        Fast Release
+                    </h3>
+
+                    <p>
+                        Jenkins automation reduces manual
+                        deployment activities and speeds up
+                        application delivery.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🧪
+                    </div>
+
+                    <h3>
+                        Pre-Production Testing
+                    </h3>
+
+                    <p>
+                        Green provides an isolated environment
+                        where the latest application version
+                        can be tested before release.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        Version Tracking
+                    </h3>
+
+                    <p>
+                        GREEN-2.0 clearly identifies the
+                        deployed application release and
+                        simplifies deployment tracking.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🤖
+                    </div>
+
+                    <h3>
+                        CI/CD Automation
+                    </h3>
+
+                    <p>
+                        GitHub and Jenkins work together to
+                        automate the continuous integration
+                        and continuous deployment workflow.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             ACHIEVEMENT
+        ====================================== -->
+
+        <section class="achievement">
+
+            <h2>
+                🎯 Jenkins Day 17 Achievement
+            </h2>
+
+            <p>
+
+                Successfully created the Green Environment
+                for Blue-Green Deployment.
+
+                The Green environment contains the new
+                application version GREEN-2.0 and demonstrates
+                how Jenkins can automate the deployment of
+                a new release.
+
+                This approach allows the development team to
+                test and validate the new version independently
+                before switching production traffic from the
+                existing Blue environment.
+
+            </p>
+
+
+            <div class="tags">
+
+                <span class="tag">
+                    🟢 GREEN-2.0
+                </span>
+
+                <span class="tag">
+                    Jenkins
+                </span>
+
+                <span class="tag">
+                    GitHub
+                </span>
+
+                <span class="tag">
+                    CI/CD
+                </span>
+
+                <span class="tag">
+                    DevOps
+                </span>
+
+                <span class="tag">
+                    Blue-Green Deployment
+                </span>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer>
+
+        <h3>
+            🟢 GREEN ENVIRONMENT
+        </h3>
+
+        <p>
+            Jenkins Day 17 • Automated Blue-Green Deployment
+        </p>
+
+        <p>
+            Version: GREEN-2.0
+        </p>
+
+        <p>
+            Deployment Status: New Version
+        </p>
+
+        <p>
+            Created by Subalakshmi K
+        </p>
+
+        <div class="tags">
+
+            <span class="tag">
+                🚀 Build
+            </span>
+
+            <span class="tag">
+                🧪 Test
+            </span>
+
+            <span class="tag">
+                📦 Deploy
+            </span>
+
+            <span class="tag">
+                🟢 Release
+            </span>
+
+        </div>
+
+    </footer>
+
+
+</body>
+
+</html>
