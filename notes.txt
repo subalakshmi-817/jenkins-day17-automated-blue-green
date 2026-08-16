@@ -1,0 +1,894 @@
+
+---
+
+# 📄 Day 17 `notes.txt`
+
+```text
+============================================================
+JENKINS DAY 17 – AUTOMATED BLUE-GREEN DEPLOYMENT
+============================================================
+
+Author:
+Subalakshmi K
+
+Project:
+Jenkins Day 17 – Automated Blue-Green Deployment
+
+Main Technologies:
+Linux
+Git
+GitHub
+Jenkins
+Docker
+Nginx
+GitHub Webhook
+CI/CD
+
+============================================================
+1. PROJECT GOAL
+============================================================
+
+The goal of Day 17 is to automate the Blue-Green Deployment
+workflow using GitHub, Jenkins, Docker and Webhooks.
+
+Day 16 introduced Blue-Green Deployment.
+
+Day 17 adds automation.
+
+Final workflow:
+
+Developer
+    ↓
+Git Push
+    ↓
+GitHub
+    ↓
+Webhook
+    ↓
+Jenkins
+    ↓
+Docker
+    ↓
+Blue-Green Deployment
+    ↓
+Health Check
+    ↓
+Verification
+
+============================================================
+2. BLUE-GREEN DEPLOYMENT
+============================================================
+
+Blue-Green Deployment uses two environments.
+
+BLUE:
+Current stable version.
+
+GREEN:
+New application version.
+
+Example:
+
+Blue = Version 1.0
+
+Green = Version 2.0
+
+The new version is deployed to Green.
+
+After testing:
+
+Green can become the active version.
+
+If Green fails:
+
+Blue can remain active.
+
+============================================================
+3. PROJECT STRUCTURE
+============================================================
+
+jenkins-day17-automated-blue-green/
+
+blue/
+    Dockerfile
+    index.html
+
+green/
+    Dockerfile
+    index.html
+
+screenshots/
+
+Jenkinsfile
+
+README.md
+
+notes.txt
+
+============================================================
+4. BLUE APPLICATION
+============================================================
+
+Blue image:
+
+day17-blue
+
+Blue container:
+
+day17-blue-container
+
+Blue port:
+
+8091
+
+Blue URL:
+
+http://localhost:8091
+
+Build:
+
+docker build -t day17-blue ./blue
+
+Run:
+
+docker run -d \
+--name day17-blue-container \
+-p 8091:80 \
+day17-blue
+
+============================================================
+5. GREEN APPLICATION
+============================================================
+
+Green image:
+
+day17-green
+
+Green container:
+
+day17-green-container
+
+Green port:
+
+8092
+
+Green URL:
+
+http://localhost:8092
+
+Build:
+
+docker build -t day17-green ./green
+
+Run:
+
+docker run -d \
+--name day17-green-container \
+-p 8092:80 \
+day17-green
+
+============================================================
+6. DOCKER
+============================================================
+
+Docker is used to create isolated application
+environments.
+
+Check Docker:
+
+docker --version
+
+Check images:
+
+docker images
+
+Check containers:
+
+docker ps
+
+Check all containers:
+
+docker ps -a
+
+============================================================
+7. DOCKERFILE
+============================================================
+
+Blue Dockerfile:
+
+FROM nginx:alpine
+
+COPY index.html /usr/share/nginx/html/index.html
+
+Green Dockerfile uses the same base image.
+
+Nginx provides the web server.
+
+============================================================
+8. MANUAL BUILD
+============================================================
+
+Blue:
+
+docker build -t day17-blue ./blue
+
+Green:
+
+docker build -t day17-green ./green
+
+Verify:
+
+docker images | grep day17
+
+============================================================
+9. MANUAL DEPLOYMENT
+============================================================
+
+Blue:
+
+docker run -d \
+--name day17-blue-container \
+-p 8091:80 \
+day17-blue
+
+Green:
+
+docker run -d \
+--name day17-green-container \
+-p 8092:80 \
+day17-green
+
+Verify:
+
+docker ps
+
+============================================================
+10. APPLICATION TEST
+============================================================
+
+Blue:
+
+curl http://localhost:8091
+
+Green:
+
+curl http://localhost:8092
+
+Browser:
+
+http://localhost:8091
+
+http://localhost:8092
+
+============================================================
+11. HEALTH CHECK
+============================================================
+
+Blue:
+
+curl -f http://localhost:8091
+
+Green:
+
+curl -f http://localhost:8092
+
+Option:
+
+curl -I http://localhost:8091
+
+curl -I http://localhost:8092
+
+Expected:
+
+HTTP 200 OK
+
+============================================================
+12. JENKINS
+============================================================
+
+Jenkins automates the deployment.
+
+Job:
+
+Day17-Automated-Blue-Green
+
+Pipeline:
+
+Declarative Pipeline
+
+SCM:
+
+Git
+
+Repository:
+
+https://github.com/subalakshmi-817/jenkins-day17-automated-blue-green.git
+
+Branch:
+
+*/main
+
+Script:
+
+Jenkinsfile
+
+============================================================
+13. JENKINS PIPELINE STAGES
+============================================================
+
+Stage 1:
+Checkout
+
+Stage 2:
+Build Blue Image
+
+Stage 3:
+Build Green Image
+
+Stage 4:
+Remove Old Containers
+
+Stage 5:
+Deploy Blue
+
+Stage 6:
+Health Check Blue
+
+Stage 7:
+Deploy Green
+
+Stage 8:
+Health Check Green
+
+Stage 9:
+Verify Deployment
+
+============================================================
+14. CHECKOUT
+============================================================
+
+Jenkins obtains source code from GitHub.
+
+The repository contains:
+
+Jenkinsfile
+blue/
+green/
+
+============================================================
+15. BUILD BLUE
+============================================================
+
+Command used by Jenkins:
+
+docker build -t day17-blue ./blue
+
+============================================================
+16. BUILD GREEN
+============================================================
+
+Command:
+
+docker build -t day17-green ./green
+
+============================================================
+17. REMOVE OLD CONTAINERS
+============================================================
+
+Commands:
+
+docker rm -f day17-blue-container || true
+
+docker rm -f day17-green-container || true
+
+The || true prevents failure if the containers do not exist.
+
+============================================================
+18. DEPLOY BLUE
+============================================================
+
+Command:
+
+docker run -d \
+--name day17-blue-container \
+-p 8091:80 \
+day17-blue
+
+============================================================
+19. DEPLOY GREEN
+============================================================
+
+Command:
+
+docker run -d \
+--name day17-green-container \
+-p 8092:80 \
+day17-green
+
+============================================================
+20. HEALTH CHECK
+============================================================
+
+Blue:
+
+curl -f http://localhost:8091
+
+Green:
+
+curl -f http://localhost:8092
+
+If curl returns the page successfully, the application is
+healthy.
+
+============================================================
+21. GITHUB WEBHOOK
+============================================================
+
+GitHub Webhook sends an event to Jenkins when a repository
+change occurs.
+
+Workflow:
+
+git push
+    ↓
+GitHub
+    ↓
+Webhook
+    ↓
+Jenkins
+    ↓
+Build
+
+============================================================
+22. WEBHOOK CONFIGURATION
+============================================================
+
+GitHub:
+
+Repository
+    ↓
+Settings
+    ↓
+Webhooks
+    ↓
+Add webhook
+
+Payload URL:
+
+http://JENKINS-SERVER/github-webhook/
+
+Content Type:
+
+application/json
+
+Event:
+
+Just the push event
+
+Active:
+
+Enabled
+
+IMPORTANT:
+
+GitHub must be able to reach the Jenkins webhook endpoint.
+
+A Jenkins instance available only at localhost cannot be
+directly called by GitHub's servers.
+
+============================================================
+23. JENKINS WEBHOOK TRIGGER
+============================================================
+
+Jenkins job:
+
+Day17-Automated-Blue-Green
+
+Configure:
+
+Build Triggers
+
+Enable GitHub hook trigger for GITScm polling.
+
+============================================================
+24. WEBHOOK TEST
+============================================================
+
+Modify:
+
+blue/index.html
+
+Example:
+
+Version: BLUE-1.0
+
+Change to:
+
+Version: BLUE-1.1
+
+Then:
+
+git add blue/index.html
+
+git commit -m "Update Blue version"
+
+git push
+
+GitHub sends webhook.
+
+Jenkins receives webhook.
+
+Pipeline starts automatically.
+
+============================================================
+25. GIT
+============================================================
+
+Initialize:
+
+git init
+
+Rename branch:
+
+git branch -M main
+
+Check repository:
+
+git rev-parse --show-toplevel
+
+Check status:
+
+git status
+
+Add files:
+
+git add .
+
+Commit:
+
+git commit -m "Add Day 17 automated deployment"
+
+Push:
+
+git push -u origin main
+
+============================================================
+26. GITHUB
+============================================================
+
+Repository:
+
+jenkins-day17-automated-blue-green
+
+Description:
+
+Jenkins Day 17 project implementing automated Blue-Green
+Deployment using GitHub Webhook, Jenkins Pipeline, Docker,
+and automated health checks.
+
+============================================================
+27. DOCKER PERMISSION
+============================================================
+
+If Jenkins cannot use Docker:
+
+groups jenkins
+
+Add Jenkins to Docker group:
+
+sudo usermod -aG docker jenkins
+
+Restart Jenkins:
+
+sudo systemctl restart jenkins
+
+Check:
+
+sudo systemctl status jenkins
+
+============================================================
+28. DOCKER SERVICE
+============================================================
+
+Check:
+
+sudo systemctl status docker
+
+Start:
+
+sudo systemctl start docker
+
+Restart:
+
+sudo systemctl restart docker
+
+============================================================
+29. PORT PROBLEMS
+============================================================
+
+Check port 8091:
+
+sudo ss -tulpn | grep 8091
+
+Check port 8092:
+
+sudo ss -tulpn | grep 8092
+
+Check Docker:
+
+docker ps
+
+Remove old container:
+
+docker rm -f day17-blue-container
+
+docker rm -f day17-green-container
+
+============================================================
+30. JENKINS ERROR
+============================================================
+
+If Jenkins says:
+
+path "./blue" not found
+
+Check GitHub structure.
+
+Correct:
+
+blue/Dockerfile
+blue/index.html
+
+green/Dockerfile
+green/index.html
+
+The blue directory must be at the repository root.
+
+============================================================
+31. WEBHOOK ERROR
+============================================================
+
+If GitHub webhook fails:
+
+Check Jenkins URL.
+
+Check Jenkins is reachable.
+
+Check webhook endpoint:
+
+/github-webhook/
+
+Check Jenkins build trigger.
+
+Check GitHub webhook delivery logs.
+
+If Jenkins is localhost only, GitHub cannot directly access
+the endpoint.
+
+============================================================
+32. TESTING
+============================================================
+
+Test Docker:
+
+docker images
+
+Test containers:
+
+docker ps
+
+Test Blue:
+
+curl http://localhost:8091
+
+Test Green:
+
+curl http://localhost:8092
+
+Test Jenkins:
+
+Build Now
+
+Test Webhook:
+
+git push
+
+============================================================
+33. FINAL WORKFLOW
+============================================================
+
+Developer
+    ↓
+GitHub
+    ↓
+Webhook
+    ↓
+Jenkins
+    ↓
+Checkout
+    ↓
+Build Blue
+    ↓
+Build Green
+    ↓
+Deploy
+    ↓
+Health Check
+    ↓
+Verify
+    ↓
+SUCCESS
+
+============================================================
+34. ADVANTAGES
+============================================================
+
+Automated deployment
+Reduced manual work
+Fast deployment
+Health checking
+Easy rollback
+GitHub integration
+Jenkins integration
+Docker isolation
+CI/CD automation
+
+============================================================
+35. LIMITATIONS
+============================================================
+
+Requires Docker.
+
+Requires Jenkins.
+
+Webhook requires a reachable Jenkins endpoint.
+
+Two environments require additional resources.
+
+Production traffic switching requires a reverse proxy,
+load balancer or routing mechanism.
+
+============================================================
+36. LEARNING OUTCOMES
+============================================================
+
+Learned:
+
+Git
+GitHub
+Linux
+Docker
+Jenkins
+Jenkins Pipeline
+GitHub Webhooks
+CI/CD
+Blue-Green Deployment
+Health Checks
+Container Management
+Automated Deployment
+
+============================================================
+37. FUTURE ENHANCEMENTS
+============================================================
+
+Docker Compose
+Nginx Reverse Proxy
+Load Balancer
+Prometheus
+Grafana
+Kubernetes
+AWS
+Automatic Rollback
+Slack Notifications
+Email Notifications
+Automated Testing
+HTTPS
+Security Scanning
+
+============================================================
+38. PROJECT RESULT
+============================================================
+
+Day 17 demonstrates an automated Blue-Green Deployment
+pipeline.
+
+The final workflow is:
+
+GitHub
+    ↓
+Webhook
+    ↓
+Jenkins
+    ↓
+Docker
+    ↓
+Blue
++
+Green
+    ↓
+Health Check
+    ↓
+Verification
+    ↓
+SUCCESS
+
+============================================================
+39. IMPORTANT SCREENSHOTS
+============================================================
+
+01-github-day17-repository.png
+
+02-day17-project-folder.png
+
+03-day17-project-structure.png
+
+04-day17-blue-docker-build.png
+
+05-day17-blue-green-images.png
+
+06-day17-blue-container.png
+
+07-day17-both-containers.png
+
+08-day17-blue-application.png
+
+09-day17-green-application.png
+
+10-day17-health-checks.png
+
+11-day17-git-initialization.png
+
+12-day17-github-remote.png
+
+13-day17-github-push.png
+
+14-day17-github-files.png
+
+15-day17-jenkins-new-job.png
+
+16-day17-jenkins-scm-config.png
+
+17-day17-jenkins-pipeline-running.png
+
+18-day17-jenkins-success.png
+
+19-day17-final-docker-containers.png
+
+20-day17-final-blue-green-applications.png
+
+21-day17-jenkins-webhook-trigger.png
+
+22-day17-github-webhook.png
+
+23-day17-git-push-webhook-trigger.png
+
+============================================================
+40. CONCLUSION
+============================================================
+
+Jenkins Day 17 extends the Day 16 Blue-Green Deployment
+project by adding GitHub Webhook based automation.
+
+A developer can push code to GitHub and Jenkins can be
+triggered automatically.
+
+Jenkins then builds Docker images, deploys Blue and Green
+containers, performs health checks and verifies the
+deployment.
+
+This project demonstrates a practical DevOps CI/CD workflow.
+
+============================================================
+END OF DAY 17 NOTES
+============================================================
+
+Author:
+Subalakshmi K
+
+Project:
+Jenkins Day 17 – Automated Blue-Green Deployment
+
+Status:
+Completed
+
+============================================================
